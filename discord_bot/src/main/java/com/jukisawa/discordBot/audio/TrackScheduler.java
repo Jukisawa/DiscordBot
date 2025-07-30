@@ -46,7 +46,7 @@ public class TrackScheduler extends AudioEventAdapter {
     public AudioTrack loadAudioTrackFromSong(Song song) {
         BlockingAudioLoadResultHandler resultHandler = new BlockingAudioLoadResultHandler();
 
-        playerManager.loadItem(song.getUrl(), resultHandler);
+        playerManager.loadItem(song.url(), resultHandler);
         try {
             AudioTrack track = resultHandler.getTrack();
             track.setUserData(track.getInfo().title);

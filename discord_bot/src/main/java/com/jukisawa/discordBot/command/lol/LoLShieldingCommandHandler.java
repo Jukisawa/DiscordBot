@@ -11,6 +11,7 @@ import com.jukisawa.discordBot.dto.lol.Champion;
 import com.jukisawa.discordBot.dto.lol.LoLCommandInput;
 import com.jukisawa.discordBot.dto.lol.MatchData;
 import com.jukisawa.discordBot.dto.lol.MatchParticipant;
+import com.jukisawa.discordBot.exceptions.InputParseException;
 import com.jukisawa.discordBot.repository.LoLAccountRepository;
 import com.jukisawa.discordBot.service.lol.RiotApiService;
 import com.jukisawa.discordBot.util.CommandUtils;
@@ -41,7 +42,7 @@ public class LoLShieldingCommandHandler implements CommandHandler {
 
       logger.info("Processing LoL Shielding command");
 
-      LoLCommandInput commandInput = CommandUtils.parseLoLCommandInput(arguments, event);
+      LoLCommandInput commandInput = CommandUtils.parseLoLCommandInput(arguments);
       commandInput.setRiotId(CommandUtils.extractOrFetchRiotId(commandInput.getRiotId(), event, lolAccountRepository));
       String puuid = riotApi.getPuuid(commandInput.getRiotId());
       List<String> games = riotApi.getRecentGamesByQueueType(puuid, commandInput.getGameCount(),
@@ -53,18 +54,20 @@ public class LoLShieldingCommandHandler implements CommandHandler {
         MatchData matchData = riotApi.getMatchData(matchId);
         for (MatchParticipant participant : matchData.getParticipants()) {
           String champion = allChampions.stream()
-              .filter(champ -> champ.getId() == participant.getChampionId())
-              .map(champ -> champ.getName())
+              .filter(champ -> champ.id() == participant.championId())
+              .map(champ -> champ.name())
               .findFirst()
               .orElse("Unknown Champion");
           if (champion != "Unknown Champion") {
-            int totalShielding = participant.getTotalDamageShieldedOnTeammates();
+            int totalShielding = participant.totalDamageShieldedOnTeammates();
             response.append("\n").append(champion);
             response.append("\tShielding: ").append(CommandUtils.convertNumber(totalShielding));
           }
         }
       }
       event.getChannel().sendMessage(response.toString()).queue();
+    } catch (InputParseException e) {
+      event.getChannel().sendMessage(e.getMessage()).queue();
     } catch (Exception e) {
       logger.error("Error fetching items: ", e);
     }

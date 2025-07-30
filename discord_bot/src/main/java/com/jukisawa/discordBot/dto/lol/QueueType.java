@@ -1,10 +1,10 @@
 package com.jukisawa.discordBot.dto.lol;
 public enum QueueType {
     ALL("Alle Warteschlangen", 0),
-    NORMAL_Draft("Normal Draft", 400),
+    NORMAL_DRAFT("Normal Draft", 400),
     RANKED_SOLO_5x5("Ranked Solo", 420),
     RANKED_FLEX_SR("Ranked Flex", 440),
-    Quickplay("Quickplay", 490),
+    QUICKPLAY("Quickplay", 490),
     ARAM("ARAM", 450);
 
     private final String name;

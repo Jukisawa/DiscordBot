@@ -74,8 +74,8 @@ public class LoLMasteryCommandHandler implements CommandHandler {
         for (ChampionMastery mastery : championMasteries) {
 
             String championName = allChampions.stream()
-                    .filter(champ -> champ.getId() == mastery.getChampionId())
-                    .map(champ -> champ.getName())
+                    .filter(champ -> champ.id() == mastery.getChampionId())
+                    .map(champ -> champ.name())
                     .findFirst()
                     .orElse("Unknown Champion");
             String lastPlayTimeStr = "-";

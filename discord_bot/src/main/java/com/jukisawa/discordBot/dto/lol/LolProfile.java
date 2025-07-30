@@ -1,10 +1,8 @@
 package com.jukisawa.discordBot.dto.lol;
 
-import lombok.Data;
-
-@Data
-public class LolProfile {
-    private String gameName;
-    private String tagLine;
-    
+public record LolProfile(String gameName, String tagLine) {
+    public LolProfile(String gameName, String tagLine) {
+        this.gameName = gameName;
+        this.tagLine = tagLine;
+    }
 }

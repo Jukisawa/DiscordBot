@@ -38,17 +38,17 @@ public class LoLRankedStatsCommandHandler implements CommandHandler {
             List<RankedStats> rankedStats = riotApi.getRankedStats(puuid);
             StringBuilder message = new StringBuilder("Ranked Stats for " + arguments + ":\n\n");
             for (RankedStats stats : rankedStats) {
-                message.append("QueueType: ").append(stats.getQueueType());
-                message.append("\nTier: ").append(stats.getTier());
-                message.append("\nRank: ").append(stats.getRank());
-                message.append("\nLeague Points: ").append(stats.getLeaguePoints());
-                message.append("\nGames: ").append(CommandUtils.convertNumber(stats.getWins() + stats.getLosses()));
-                message.append("\nWins: ").append(CommandUtils.convertNumber(stats.getWins()));
-                message.append("\nLosses: ").append(CommandUtils.convertNumber(stats.getLosses()));
-                message.append("\nVeteran: ").append(stats.isVeteran());
-                message.append("\nFresh Blood: ").append(stats.isFreshBlood());
-                message.append("\nInactive: ").append(stats.isInactive());
-                message.append("\nHot Streak: ").append(stats.isHotStreak());
+                message.append("QueueType: ").append(stats.queueType());
+                message.append("\nTier: ").append(stats.tier());
+                message.append("\nRank: ").append(stats.rank());
+                message.append("\nLeague Points: ").append(stats.leaguePoints());
+                message.append("\nGames: ").append(CommandUtils.convertNumber(stats.wins() + stats.losses()));
+                message.append("\nWins: ").append(CommandUtils.convertNumber(stats.wins()));
+                message.append("\nLosses: ").append(CommandUtils.convertNumber(stats.losses()));
+                message.append("\nVeteran: ").append(stats.veteran());
+                message.append("\nFresh Blood: ").append(stats.freshBlood());
+                message.append("\nInactive: ").append(stats.inactive());
+                message.append("\nHot Streak: ").append(stats.hotStreak());
                 message.append("\n\n");
             }
             event.getChannel().sendMessage(message).queue();

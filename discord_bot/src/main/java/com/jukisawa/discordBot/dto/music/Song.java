@@ -1,11 +1,9 @@
 package com.jukisawa.discordBot.dto.music;
 
-import lombok.Data;
-
-@Data
-public class Song {
-    private final String title;
-    private final String url;
-    private final String requestedBy;
-
+public record Song(String title, String url, String requestedBy) {
+    public Song(String title, String url, String requestedBy) {
+        this.requestedBy = requestedBy;
+        this.title = title;
+        this.url = url;
+    }
 }

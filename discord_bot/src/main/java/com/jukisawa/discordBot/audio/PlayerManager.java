@@ -9,7 +9,6 @@ import com.sedmelluq.discord.lavaplayer.source.AudioSourceManagers;
 import com.sedmelluq.discord.lavaplayer.tools.FriendlyException;
 import com.sedmelluq.discord.lavaplayer.track.*;
 
-import lombok.Getter;
 import net.dv8tion.jda.api.entities.*;
 import net.dv8tion.jda.api.entities.channel.concrete.TextChannel;
 
@@ -17,7 +16,6 @@ public class PlayerManager {
 
     private static final PlayerManager INSTANCE = new PlayerManager();
 
-    @Getter
     private final AudioPlayerManager playerManager;
     private final Map<Long, GuildMusicManager> musicManagers = new HashMap<>();
 
@@ -82,7 +80,7 @@ public class PlayerManager {
             return;
         }
 
-        String url = nextSong.getUrl();
+        String url = nextSong.url();
         loadAndPlay(channel, url);
     }
 
@@ -104,5 +102,9 @@ public class PlayerManager {
         } else {
             channel.sendMessage("❌ No track is currently playing to skip.").queue();
         }
+    }
+
+    public AudioPlayerManager getPlayerManager() {
+        return playerManager;
     }
 }

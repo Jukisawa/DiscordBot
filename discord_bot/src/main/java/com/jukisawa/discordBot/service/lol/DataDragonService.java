@@ -51,11 +51,8 @@ public class DataDragonService {
             JSONObject data = response.body().getJSONObject("data");
             for (String key : data.keySet()) {
                 JSONObject itemJson = data.getJSONObject(key);
-                Item item = new Item();
-                item.setId(Integer.parseInt(key));
-                item.setName(itemJson.getString("name"));
-                item.setPrice(itemJson.getJSONObject("gold").optInt("total"));
-                items.add(item);
+                items.add(new Item(Integer.parseInt(key), itemJson.getString("name"),
+                        itemJson.getJSONObject("gold").optInt("total")));
             }
             return items;
         }
@@ -76,10 +73,7 @@ public class DataDragonService {
             JSONObject data = response.body().getJSONObject("data");
             for (String key : data.keySet()) {
                 JSONObject championJson = data.getJSONObject(key);
-                Champion champion = new Champion();
-                champion.setId(championJson.optInt("key"));
-                champion.setName(championJson.getString("name"));
-                champions.add(champion);
+                champions.add(new Champion(championJson.optInt("key"), championJson.getString("name")));
             }
             return champions;
         }
@@ -100,10 +94,8 @@ public class DataDragonService {
             JSONObject data = response.body().getJSONObject("data");
             for (String key : data.keySet()) {
                 JSONObject spellJson = data.getJSONObject(key);
-                SummonerSpell spell = new SummonerSpell();
-                spell.setId(Integer.parseInt(spellJson.getString("key")));
-                spell.setName(spellJson.getString("name"));
-                summonerSpells.add(spell);
+                summonerSpells.add(
+                        new SummonerSpell(Integer.parseInt(spellJson.getString("key")), spellJson.getString("name")));
             }
             return summonerSpells;
         }

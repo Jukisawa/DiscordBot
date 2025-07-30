@@ -33,7 +33,7 @@ public class PlaylistManager {
     public Song removeSong(long guildId, String title) {
         Queue<Song> playlist = getPlaylist(guildId);
         for (Song song : playlist) {
-            if (song.getTitle().equalsIgnoreCase(title)) {
+            if (song.title().equalsIgnoreCase(title)) {
                 playlist.remove(song);
                 return song;
             }

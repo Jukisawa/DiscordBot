@@ -35,8 +35,8 @@ public class LoLTotalMasteryCommandHandler implements CommandHandler {
             String user = CommandUtils.extractOrFetchRiotId(arguments, event, lolAccountRepository);
             String puuid = riotApiService.getPuuid(user);
             List<ChampionMastery> masterys = riotApiService.getChampionMasterys(puuid);
-            Integer totalMastery = 0;
-            Integer totalLevel = 0;
+            int totalMastery = 0;
+            int totalLevel = 0;
             for (ChampionMastery mastery : masterys) {
                 totalMastery += mastery.getChampionPoints();
                 totalLevel += mastery.getChampionLevel();

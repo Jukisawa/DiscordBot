@@ -8,11 +8,14 @@ import java.util.regex.Pattern;
 
 import com.jukisawa.discordBot.dto.lol.LoLCommandInput;
 import com.jukisawa.discordBot.dto.lol.QueueType;
+import com.jukisawa.discordBot.exceptions.InputParseException;
 import com.jukisawa.discordBot.repository.LoLAccountRepository;
 
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
 public class CommandUtils {
+
+    private static Pattern LOL_COMMAND_PATTERN = Pattern.compile("^([A-Za-z0-9 ]{1,16}#[A-Za-z0-9]{3,5})?(?:\\s*(\\d+))?(?:\\s*(\\w+))?$");
 
     public static String extractOrFetchRiotId(String user, MessageReceivedEvent event,
             LoLAccountRepository repository) {
@@ -27,26 +30,24 @@ public class CommandUtils {
         }
     }
 
-    public static LoLCommandInput parseLoLCommandInput(String arguments, MessageReceivedEvent event) {
+    public static LoLCommandInput parseLoLCommandInput(String arguments) {
         String user = null;
         int gameCount = 20;
         QueueType queueType = null;
-        Pattern pattern = Pattern.compile("^([A-Za-z0-9 ]{1,16}#[A-Za-z0-9]{3,5})?(?:\\s*(\\d+))?(?:\\s*(\\w+))?$");
-        Matcher matcher = pattern.matcher(arguments);
+        Matcher matcher = LOL_COMMAND_PATTERN.matcher(arguments);
         if (matcher.matches()) {
             user = matcher.group(1);
             if (matcher.group(2) != null) {
                 try {
                     gameCount = Math.min(Integer.parseInt(matcher.group(2)), 100);
                 } catch (NumberFormatException e) {
-                    event.getChannel().sendMessage("Ungültige Anzahl an Spielen. Bitte eine Zahl eingeben.").queue();
+                    throw new InputParseException("Ungültige Anzahl an Spielen. Bitte eine Zahl eingeben.");
                 }
             }
             if (matcher.group(3) != null) {
                 queueType = QueueType.getByName(matcher.group(3));
                 if (queueType == null) {
-                    event.getChannel().sendMessage("Ungültiger Warteschlangentyp. Bitte einen gültigen Typ eingeben.")
-                            .queue();
+                    throw new InputParseException("Ungültiger Warteschlangentyp. Bitte einen gültigen Typ eingeben.");
                 }
             }
         }

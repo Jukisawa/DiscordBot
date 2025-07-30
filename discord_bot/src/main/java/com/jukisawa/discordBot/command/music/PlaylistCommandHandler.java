@@ -132,7 +132,7 @@ public class PlaylistCommandHandler implements CommandHandler {
     private String getPlaylist(long guildId) {
         StringBuilder sb = new StringBuilder();
         for (Song song : playlistManager.getPlaylist(guildId)) {
-            sb.append(song.getTitle()).append(" von ").append(song.getRequestedBy()).append("\n");
+            sb.append(song.title()).append(" von ").append(song.requestedBy()).append("\n");
         }
 
         if (sb.isEmpty()) {
@@ -166,7 +166,7 @@ public class PlaylistCommandHandler implements CommandHandler {
     private void removeSongFromPlaylist(MessageReceivedEvent event, String song) {
         Song removedSong = playlistManager.removeSong(event.getGuild().getIdLong(), song);
         if (removedSong != null) {
-            event.getChannel().sendMessage("Song removed from playlist: " + removedSong.getTitle()).queue();
+            event.getChannel().sendMessage("Song removed from playlist: " + removedSong.title()).queue();
         } else {
             event.getChannel().sendMessage("Song not found in playlist: " + song).queue();
         }

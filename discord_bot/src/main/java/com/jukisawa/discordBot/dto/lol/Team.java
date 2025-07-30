@@ -7,38 +7,44 @@ import java.util.Map;
 
 import org.json.JSONObject;
 
-import lombok.Data;
+public record Team(
+        List<Integer> bans,
+        Map<String, Integer> feats,
+        List<Objective> objectives,
+        boolean win) {
+    public Team(JSONObject teamJson) {
+        this(parseBans(teamJson),
+                parseFeats(teamJson),
+                parseObjectives(teamJson),
+                teamJson.optBoolean("win"));
+    }
 
-@Data
-public class Team {
-
-    private List<Integer> bans;
-    private Map<String, Integer> feats;
-    private List<Objective> objectives;
-    private boolean win;
-
-    public Team(JSONObject team) {
-        this.bans = team.getJSONArray("bans")
+    private static List<Integer> parseBans(JSONObject team) {
+        return team.getJSONArray("bans")
                 .toList()
                 .stream()
-                .map(JSONObject::new)
+                .map(obj -> new JSONObject((Map<?, ?>) obj)) // safely cast from raw Map
                 .map(json -> json.optInt("championId"))
                 .toList();
-        this.feats = new HashMap<>();
+    }
+
+    private static Map<String, Integer> parseFeats(JSONObject team) {
+        Map<String, Integer> feats = new HashMap<>();
         JSONObject featsJson = team.getJSONObject("feats");
         for (String key : featsJson.keySet()) {
             JSONObject featObject = featsJson.getJSONObject(key);
-            int featState = featObject.getInt("featState");
-            feats.put(key, featState);
+            feats.put(key, featObject.getInt("featState"));
         }
-        this.objectives = new ArrayList<>();
+        return feats;
+    }
+
+    private static List<Objective> parseObjectives(JSONObject team) {
+        List<Objective> objectives = new ArrayList<>();
         JSONObject objectivesJson = team.getJSONObject("objectives");
         for (String key : objectivesJson.keySet()) {
-            Objective objective = new Objective();
-            objective.setName(key);
-            objective.setFirst(objectivesJson.optBoolean(key));
-            objective.setKills(objectivesJson.optInt(key));
+            JSONObject obj = objectivesJson.getJSONObject(key);
+            objectives.add(new Objective(key, obj.optBoolean("first"), obj.optInt("kills")));
         }
-        this.win = team.optBoolean("win");
+        return objectives;
     }
 }

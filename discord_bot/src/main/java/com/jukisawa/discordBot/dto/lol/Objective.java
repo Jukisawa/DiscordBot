@@ -1,10 +1,10 @@
 package com.jukisawa.discordBot.dto.lol;
 
-import lombok.Data;
 
-@Data
-public class Objective {
-    private String name;
-    private boolean first;
-    private int kills;
+public record Objective(String name, boolean first, int kills) {
+    public Objective(String name, boolean first, int kills) {
+        this.first= first;
+        this.kills = kills;
+        this.name = name;
+    }
 }

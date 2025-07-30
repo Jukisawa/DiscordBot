@@ -1,9 +1,8 @@
 package com.jukisawa.discordBot.dto.lol;
 
-import lombok.Data;
-
-@Data
-public class SummonerSpell {
-    private int id;
-    private String name;
+public record SummonerSpell(int id, String name) {
+    public SummonerSpell(int id, String name) {
+        this.id = id;
+        this.name = name;
+    }
 }

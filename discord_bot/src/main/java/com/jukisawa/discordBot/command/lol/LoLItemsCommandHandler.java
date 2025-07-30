@@ -16,6 +16,7 @@ import com.jukisawa.discordBot.dto.lol.Item;
 import com.jukisawa.discordBot.dto.lol.LoLCommandInput;
 import com.jukisawa.discordBot.dto.lol.MatchData;
 import com.jukisawa.discordBot.dto.lol.MatchParticipant;
+import com.jukisawa.discordBot.exceptions.InputParseException;
 import com.jukisawa.discordBot.repository.LoLAccountRepository;
 import com.jukisawa.discordBot.service.lol.RiotApiService;
 import com.jukisawa.discordBot.util.CommandUtils;
@@ -47,7 +48,7 @@ public class LoLItemsCommandHandler implements CommandHandler {
 
       logger.info("Processing LoL Items command");
 
-      LoLCommandInput commandInput = CommandUtils.parseLoLCommandInput(arguments, event);
+      LoLCommandInput commandInput = CommandUtils.parseLoLCommandInput(arguments);
 
       commandInput.setRiotId(CommandUtils.extractOrFetchRiotId(commandInput.getRiotId(), event, lolAccountRepository));
 
@@ -59,9 +60,9 @@ public class LoLItemsCommandHandler implements CommandHandler {
       for (String matchId : games) {
         MatchData matchData = riotApi.getMatchData(matchId);
         for (MatchParticipant participant : matchData.getParticipants()) {
-          for (int itemId : participant.getItems()) {
+          for (int itemId : participant.items()) {
             if (itemId > 0) {
-              Item item = allItems.stream().filter(it -> it.getId() == itemId).findFirst().orElse(null);
+              Item item = allItems.stream().filter(it -> it.id() == itemId).findFirst().orElse(null);
               if (item != null) {
                 itemUsage.put(item, itemUsage.getOrDefault(item, 0) + 1);
               }
@@ -78,13 +79,15 @@ public class LoLItemsCommandHandler implements CommandHandler {
       try (java.io.PrintWriter writer = new java.io.PrintWriter(tempFile, "UTF-8")) {
         writer.println("ItemName,UsageCount");
         for (Map.Entry<Item, Integer> entry : sortedItems) {
-          writer.println("\"" + entry.getKey().getName().replace("\"", "\"\"") + "\"," + entry.getValue());
+          writer.println("\"" + entry.getKey().name().replace("\"", "\"\"") + "\"," + entry.getValue());
         }
       }
 
       FileUpload fileUpload = FileUpload.fromData(tempFile, "item_usage.csv");
       event.getChannel().sendFiles(Collections.singleton(fileUpload)).queue(
           (msg) -> tempFile.delete());
+    } catch (InputParseException e) {
+      event.getChannel().sendMessage(e.getMessage()).queue();
     } catch (Exception e) {
       logger.error("Error fetching items: ", e);
     }

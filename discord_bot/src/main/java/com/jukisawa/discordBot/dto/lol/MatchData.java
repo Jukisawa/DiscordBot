@@ -6,9 +6,6 @@ import java.util.stream.Collectors;
 
 import org.json.JSONObject;
 
-import lombok.Data;
-
-@Data
 public class MatchData {
     private String endOfGameResult;
     private Long gameCreation;
@@ -29,7 +26,7 @@ public class MatchData {
         this.gameMode = matchData.optString("gameMode");
         this.gameName = matchData.optString("gameName");
         this.gameVersion = matchData.optString("gameVersion");
-        this.endOfGameResult = matchData.optString("endOfGameResult");
+        this.gameType = matchData.optString("gameType");
         this.gameCreation = matchData.optLong("gameCreation");
         this.gameEndTimestamp = matchData.optLong("gameEndTimestamp");
         this.gameId = matchData.optLong("gameId");
@@ -51,6 +48,110 @@ public class MatchData {
                 .map(Team::new)
                 .collect(Collectors.toList());
 
+    }
+
+    public String getEndOfGameResult() {
+        return endOfGameResult;
+    }
+
+    public void setEndOfGameResult(String endOfGameResult) {
+        this.endOfGameResult = endOfGameResult;
+    }
+
+    public Long getGameCreation() {
+        return gameCreation;
+    }
+
+    public void setGameCreation(Long gameCreation) {
+        this.gameCreation = gameCreation;
+    }
+
+    public int getGameDuration() {
+        return gameDuration;
+    }
+
+    public void setGameDuration(int gameDuration) {
+        this.gameDuration = gameDuration;
+    }
+
+    public Long getGameEndTimestamp() {
+        return gameEndTimestamp;
+    }
+
+    public void setGameEndTimestamp(Long gameEndTimestamp) {
+        this.gameEndTimestamp = gameEndTimestamp;
+    }
+
+    public Long getGameId() {
+        return gameId;
+    }
+
+    public void setGameId(Long gameId) {
+        this.gameId = gameId;
+    }
+
+    public String getGameMode() {
+        return gameMode;
+    }
+
+    public void setGameMode(String gameMode) {
+        this.gameMode = gameMode;
+    }
+
+    public String getGameName() {
+        return gameName;
+    }
+
+    public void setGameName(String gameName) {
+        this.gameName = gameName;
+    }
+
+    public Long getGameStartTimestamp() {
+        return gameStartTimestamp;
+    }
+
+    public void setGameStartTimestamp(Long gameStartTimestamp) {
+        this.gameStartTimestamp = gameStartTimestamp;
+    }
+
+    public String getGameType() {
+        return gameType;
+    }
+
+    public void setGameType(String gameType) {
+        this.gameType = gameType;
+    }
+
+    public String getGameVersion() {
+        return gameVersion;
+    }
+
+    public void setGameVersion(String gameVersion) {
+        this.gameVersion = gameVersion;
+    }
+
+    public int getMapId() {
+        return mapId;
+    }
+
+    public void setMapId(int mapId) {
+        this.mapId = mapId;
+    }
+
+    public List<MatchParticipant> getParticipants() {
+        return participants;
+    }
+
+    public void setParticipants(List<MatchParticipant> participants) {
+        this.participants = participants;
+    }
+
+    public List<Team> getTeams() {
+        return teams;
+    }
+
+    public void setTeams(List<Team> teams) {
+        this.teams = teams;
     }
 
 }

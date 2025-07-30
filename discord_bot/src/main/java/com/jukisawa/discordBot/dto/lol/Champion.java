@@ -1,9 +1,8 @@
 package com.jukisawa.discordBot.dto.lol;
 
-import lombok.Data;
-
-@Data
-public class Champion {
-    private int id;
-    private String name;
+public record Champion(int id, String name) {
+    public Champion(int id, String name) {
+        this.id = id;
+        this.name = name;
+    }
 }
