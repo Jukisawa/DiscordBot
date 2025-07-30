@@ -1,0 +1,26 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "type": "java",
+      "name": "DiscordBot",
+      "request": "launch",
+      "mainClass": "com.jukisawa.discordBot.bot.DiscordBot",
+      "projectName": "discordBot"
+    },
+    {
+      "type": "java",
+      "name": "discordBot",
+      "request": "launch",
+      "mainClass": "com.jukisawa.discordBot.bot.DiscordBot",
+      "projectName": "DiscordBot"
+    },
+    {
+      "type": "java",
+      "name": "Debug Discord Bot",
+      "request": "launch",
+      "mainClass": "com.jukisawa.discordBot.bot.DiscordBot",
+      "projectName": "DiscordBot"
+    }
+  ]
+}
