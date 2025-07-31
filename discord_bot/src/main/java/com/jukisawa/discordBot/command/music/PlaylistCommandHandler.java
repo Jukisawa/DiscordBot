@@ -80,6 +80,7 @@ public class PlaylistCommandHandler implements CommandHandler {
                     musicManager = playerManager.getMusicManager(guild);
                     player = musicManager.player;
                     player.setPaused(false);
+                    break;
                 case "stop":
                     AudioManager audioManager = guild.getAudioManager();
                     if (audioManager.isConnected()) {
