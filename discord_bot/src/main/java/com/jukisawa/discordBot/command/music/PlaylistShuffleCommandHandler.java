@@ -5,8 +5,7 @@ import org.slf4j.LoggerFactory;
 
 import com.jukisawa.discordBot.audio.PlaylistManager;
 import com.jukisawa.discordBot.command.CommandHandler;
-
-import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
+import com.jukisawa.discordBot.event.CommandEvent;
 
 public class PlaylistShuffleCommandHandler implements CommandHandler {
     
@@ -14,9 +13,9 @@ public class PlaylistShuffleCommandHandler implements CommandHandler {
     private static final Logger logger = LoggerFactory.getLogger(PlaylistShuffleCommandHandler.class);
 
     @Override
-    public void handle(MessageReceivedEvent event, String arguments) {
+    public void handle(CommandEvent event, String arguments) {
         logger.info("Handling playlist shuffle command");
-        playlistManager.shufflePlaylist(event.getGuild().getIdLong());
-        event.getChannel().sendMessage("Playlist shuffled.").queue();
+        playlistManager.shufflePlaylist(event.guild().getIdLong());
+        event.channel().sendMessage("Playlist shuffled.").queue();
     }
 }

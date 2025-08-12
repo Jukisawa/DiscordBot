@@ -6,8 +6,11 @@ import org.slf4j.LoggerFactory;
 import com.jukisawa.discordBot.event.CommandEvent;
 import com.jukisawa.discordBot.event.EventBus;
 
+import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
+import net.dv8tion.jda.api.events.interaction.component.ButtonInteractionEvent;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
+import net.dv8tion.jda.api.interactions.commands.OptionMapping;
 
 /**
  * Thin Discord event listener that publishes events to the event bus
@@ -15,7 +18,7 @@ import net.dv8tion.jda.api.hooks.ListenerAdapter;
  */
 public class DiscordEventListener extends ListenerAdapter {
     private static final Logger logger = LoggerFactory.getLogger(DiscordEventListener.class);
-    
+
     private final EventBus eventBus;
     private final String commandPrefix;
 
@@ -27,7 +30,7 @@ public class DiscordEventListener extends ListenerAdapter {
     @Override
     public void onMessageReceived(MessageReceivedEvent event) {
         String message = event.getMessage().getContentRaw();
-        
+
         // Ignore bot messages and non-guild messages
         if (event.getAuthor().isBot() || !event.isFromGuild()) {
             return;
@@ -46,8 +49,36 @@ public class DiscordEventListener extends ListenerAdapter {
         logger.debug("Publishing command event: {} with args: {}", command, arguments);
 
         // Publish event asynchronously - doesn't block Discord thread
-        CommandEvent commandEvent = new CommandEvent(command, arguments, event);
+        CommandEvent commandEvent = CommandEvent.from(command, arguments, event);
         eventBus.publish(commandEvent);
+    }
+
+    @Override
+    public void onSlashCommandInteraction(SlashCommandInteractionEvent event) {
+        StringBuilder arguments = new StringBuilder();
+        for (OptionMapping opt : event.getOptions()) {
+            arguments.append(opt.getAsString()).append("###");
+        }
+        CommandEvent commandEvent = CommandEvent.from(event.getName(), arguments.toString(),
+                event);
+        eventBus.publish(commandEvent);
+    }
+
+    @Override
+    public void onButtonInteraction(ButtonInteractionEvent event) {
+        // event.getComponentId() starts with handler name.
+        // If it has a value its after an ":"
+        int index = event.getComponentId().indexOf(':');
+        if (index == -1) {
+            CommandEvent commandEvent = CommandEvent.from(event.getComponentId(), "",
+                    event);
+            eventBus.publish(commandEvent);
+        } else {
+            CommandEvent commandEvent = CommandEvent.from(event.getComponentId().split(":")[0],
+                    event.getComponentId().split(":")[1], event);
+            eventBus.publish(commandEvent);
+
+        }
     }
 
     private String extractCommand(String message) {

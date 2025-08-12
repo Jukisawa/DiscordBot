@@ -80,7 +80,7 @@ public class TTSAnnouncer {
         } catch (Exception e) {
             logger.error("Error during TTS announcement loop", e);
         } finally {
-            scheduler.schedule(this::announceLoop, getRandomDelay(), TimeUnit.SECONDS);
+            scheduler.schedule(this::announceLoop, getRandomDelay(), TimeUnit.MINUTES);
         }
     }
 

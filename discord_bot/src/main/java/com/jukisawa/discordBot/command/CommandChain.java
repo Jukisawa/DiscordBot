@@ -12,6 +12,7 @@ import com.jukisawa.discordBot.event.CommandEvent;
 public class CommandChain {
     private final List<CommandMiddleware> middleware = new ArrayList<>();
     private CommandHandler handler;
+    private CommandType type;
 
     /**
      * Add middleware to the chain
@@ -27,6 +28,18 @@ public class CommandChain {
         this.handler = handler;
     }
 
+    public void setType(CommandType type) {
+        this.type = type;
+    }
+
+    public CommandType getType() {
+        return this.type;
+    }
+
+    public CommandHandler getHandler() {
+        return handler;
+    }
+
     /**
      * Execute the command chain
      */
@@ -39,7 +52,7 @@ public class CommandChain {
             // All middleware executed, run the handler
             if (handler != null) {
                 // Convert CommandEvent back to original format for existing handlers
-                handler.handle(event.discordEvent(), event.arguments());
+                handler.handle(event, event.arguments());
             }
             return;
         }

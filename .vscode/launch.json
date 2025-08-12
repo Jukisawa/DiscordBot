@@ -3,6 +3,13 @@
   "configurations": [
     {
       "type": "java",
+      "name": "BotApplication",
+      "request": "launch",
+      "mainClass": "com.jukisawa.discordBot.bot.BotApplication",
+      "projectName": "discordBot"
+    },
+    {
+      "type": "java",
       "name": "DiscordBot",
       "request": "launch",
       "mainClass": "com.jukisawa.discordBot.bot.DiscordBot",

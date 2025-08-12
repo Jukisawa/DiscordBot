@@ -8,19 +8,19 @@ import java.util.regex.Pattern;
 
 import com.jukisawa.discordBot.dto.lol.LoLCommandInput;
 import com.jukisawa.discordBot.dto.lol.QueueType;
+import com.jukisawa.discordBot.event.CommandEvent;
 import com.jukisawa.discordBot.exceptions.InputParseException;
 import com.jukisawa.discordBot.repository.LoLAccountRepository;
 
-import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
 public class CommandUtils {
 
     private static Pattern LOL_COMMAND_PATTERN = Pattern.compile("^([A-Za-z0-9 ]{1,16}#[A-Za-z0-9]{3,5})?(?:\\s*(\\d+))?(?:\\s*(\\w+))?$");
 
-    public static String extractOrFetchRiotId(String user, MessageReceivedEvent event,
+    public static String extractOrFetchRiotId(String user, CommandEvent event,
             LoLAccountRepository repository) {
         if (user == null || user.trim().isEmpty()) {
-            Long discordUserId = event.getAuthor().getIdLong();
+            Long discordUserId = event.userId();
             return repository.findByDiscordUserId(discordUserId).stream()
                     .findFirst()
                     .map(account -> account.getGameName() + "#" + account.getTagLine())

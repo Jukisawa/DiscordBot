@@ -11,12 +11,11 @@ import com.jukisawa.discordBot.dto.lol.Champion;
 import com.jukisawa.discordBot.dto.lol.LoLCommandInput;
 import com.jukisawa.discordBot.dto.lol.MatchData;
 import com.jukisawa.discordBot.dto.lol.MatchParticipant;
+import com.jukisawa.discordBot.event.CommandEvent;
 import com.jukisawa.discordBot.exceptions.InputParseException;
 import com.jukisawa.discordBot.repository.LoLAccountRepository;
 import com.jukisawa.discordBot.service.lol.RiotApiService;
 import com.jukisawa.discordBot.util.CommandUtils;
-
-import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
 public class LoLShieldingCommandHandler implements CommandHandler {
 
@@ -30,11 +29,11 @@ public class LoLShieldingCommandHandler implements CommandHandler {
   }
 
   @Override
-  public void handle(MessageReceivedEvent event, String arguments) {
+  public void handle(CommandEvent event, String arguments) {
     try {
 
       if (arguments.contains("?") || arguments.contains("help")) {
-        event.getChannel().sendMessage(
+        event.channel().sendMessage(
             "Der Commands geht folgendermaßen #lolShielding 'Name#Tag' 'Anzahl an Spiele die bewertet werden sollen' 'Der Warteschlangen typ Bsp. Solo'")
             .queue();
         return;
@@ -65,12 +64,16 @@ public class LoLShieldingCommandHandler implements CommandHandler {
           }
         }
       }
-      event.getChannel().sendMessage(response.toString()).queue();
+      event.channel().sendMessage(response.toString()).queue();
     } catch (InputParseException e) {
-      event.getChannel().sendMessage(e.getMessage()).queue();
+      event.channel().sendMessage(e.getMessage()).queue();
     } catch (Exception e) {
       logger.error("Error fetching items: ", e);
     }
   }
 
+  @Override
+  public String getDescription() {
+    return "Übersicht der von jedem Champion gewährten Schildmenge in den letzten Spielen";
+  }
 }

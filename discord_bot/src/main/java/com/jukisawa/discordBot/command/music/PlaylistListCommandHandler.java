@@ -3,8 +3,7 @@ package com.jukisawa.discordBot.command.music;
 import com.jukisawa.discordBot.audio.PlaylistManager;
 import com.jukisawa.discordBot.command.CommandHandler;
 import com.jukisawa.discordBot.dto.music.Song;
-
-import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
+import com.jukisawa.discordBot.event.CommandEvent;
 
 /**
  * Handler for listing playlist contents - matches LoL command pattern
@@ -13,11 +12,11 @@ public class PlaylistListCommandHandler implements CommandHandler {
     private final PlaylistManager playlistManager = PlaylistManager.getInstance();
 
     @Override
-    public void handle(MessageReceivedEvent event, String arguments) {
-        var playlist = playlistManager.getPlaylist(event.getGuild().getIdLong());
+    public void handle(CommandEvent event, String arguments) {
+        var playlist = playlistManager.getPlaylist(event.guild().getIdLong());
         
         if (playlist.isEmpty()) {
-            event.getChannel().sendMessage("📝 Die Playlist ist leer.").queue();
+            event.channel().sendMessage("📝 Die Playlist ist leer.").queue();
             return;
         }
         
@@ -27,6 +26,7 @@ public class PlaylistListCommandHandler implements CommandHandler {
             sb.append(String.format("%d. %s (von %s)\n", index++, song.title(), song.requestedBy()));
         }
         
-        event.getChannel().sendMessage(sb.toString()).queue();
+        event.channel().sendMessage(sb.toString()).queue();
     }
+    
 }

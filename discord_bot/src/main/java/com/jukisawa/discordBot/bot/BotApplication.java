@@ -13,17 +13,19 @@ import org.slf4j.LoggerFactory;
 import com.jukisawa.discordBot.cache.StaticCacheRefresher;
 import com.jukisawa.discordBot.command.CommandHandler;
 import com.jukisawa.discordBot.command.CommandRegistry;
+import com.jukisawa.discordBot.command.CommandType;
 import com.jukisawa.discordBot.command.lol.LoLItemsCommandHandler;
 import com.jukisawa.discordBot.command.lol.LoLMasteryCommandHandler;
 import com.jukisawa.discordBot.command.lol.LoLRankedStatsCommandHandler;
 import com.jukisawa.discordBot.command.lol.LoLRankingCommandHandler;
 import com.jukisawa.discordBot.command.lol.LoLShieldingCommandHandler;
 import com.jukisawa.discordBot.command.lol.LoLTotalMasteryCommandHandler;
-import com.jukisawa.discordBot.command.music.PlaylistCommandRegistry;
 import com.jukisawa.discordBot.command.middleware.AuthenticationMiddleware;
 import com.jukisawa.discordBot.command.middleware.LoggingMiddleware;
 import com.jukisawa.discordBot.command.middleware.RateLimitMiddleware;
 import com.jukisawa.discordBot.command.middleware.VoiceChannelRequiredMiddleware;
+import com.jukisawa.discordBot.command.music.PlaylistCommandRegistry;
+import com.jukisawa.discordBot.command.roles.ColorPickerCommand;
 import com.jukisawa.discordBot.event.CommandEvent;
 import com.jukisawa.discordBot.event.EventBus;
 import com.jukisawa.discordBot.exceptions.DataNotFoundException;
@@ -34,20 +36,22 @@ import com.jukisawa.discordBot.service.lol.RiotApiService;
 
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.JDABuilder;
+import net.dv8tion.jda.api.interactions.commands.build.Commands;
 import net.dv8tion.jda.api.requests.GatewayIntent;
+import net.dv8tion.jda.api.requests.restaction.CommandListUpdateAction;
 
 /**
  * Main application class that sets up the event-driven Discord bot
  */
 public class BotApplication {
     private static final Logger logger = LoggerFactory.getLogger(BotApplication.class);
-    
+
     private EventBus eventBus;
     private ScheduledExecutorService scheduler;
 
     public void start() {
         logger.info("Starting Discord Bot with event-driven architecture...");
-        
+
         try {
             // Initialize core components
             eventBus = new EventBus();
@@ -71,7 +75,7 @@ public class BotApplication {
             setupPeriodicTasks();
 
             // Start Discord bot
-            startDiscordBot(eventBus);
+            startDiscordBot(eventBus, commandRegistry);
 
             logger.info("Discord Bot started successfully!");
 
@@ -83,53 +87,71 @@ public class BotApplication {
 
     private void setupMiddleware(CommandRegistry commandRegistry) {
         commandRegistry.addGlobalMiddleware(
-            new LoggingMiddleware(),
-            new RateLimitMiddleware(1), // 1 second rate limit
-            new AuthenticationMiddleware()
-        );
+                new LoggingMiddleware(),
+                new RateLimitMiddleware(1), // 1 second rate limit
+                new AuthenticationMiddleware());
         logger.info("Global middleware configured");
     }
 
-    private void registerCommands(CommandRegistry commandRegistry, RiotApiService riotApi, LoLAccountRepository lolRepo) {
+    private void registerCommands(CommandRegistry commandRegistry, RiotApiService riotApi,
+            LoLAccountRepository lolRepo) {
         // LoL commands
-        commandRegistry.registerCommand("lolMastery", 
-            new LoLMasteryCommandHandler(riotApi, lolRepo));
-        
-        commandRegistry.registerCommand("lolTotalMastery", 
-            new LoLTotalMasteryCommandHandler(riotApi, lolRepo));
-        
-        commandRegistry.registerCommand("lolRankedStats", 
-            new LoLRankedStatsCommandHandler(riotApi, lolRepo));
-        
-        commandRegistry.registerCommand("lolItems", 
-            new LoLItemsCommandHandler(riotApi, lolRepo));
-        
-        commandRegistry.registerCommand("lolShielding", 
-            new LoLShieldingCommandHandler(riotApi, lolRepo));
-        
-        commandRegistry.registerCommand("lolRanking", 
-            new LoLRankingCommandHandler(riotApi));
+        commandRegistry.registerCommand("lolMastery",
+                new LoLMasteryCommandHandler(riotApi, lolRepo), CommandType.Message);
 
-        // Playlist commands using nested command registry (keeps original command format)
-        commandRegistry.registerCommand("playlist", 
-            new PlaylistCommandRegistry(), 
-            new VoiceChannelRequiredMiddleware());
+        commandRegistry.registerCommand("lolTotalMastery",
+                new LoLTotalMasteryCommandHandler(riotApi, lolRepo), CommandType.Message);
+
+        commandRegistry.registerCommand("lolRankedStats",
+                new LoLRankedStatsCommandHandler(riotApi, lolRepo), CommandType.Message);
+
+        commandRegistry.registerCommand("lolItems",
+                new LoLItemsCommandHandler(riotApi, lolRepo), CommandType.Message);
+
+        commandRegistry.registerCommand("lolShielding",
+                new LoLShieldingCommandHandler(riotApi, lolRepo), CommandType.Message);
+
+        commandRegistry.registerCommand("lolRanking",
+                new LoLRankingCommandHandler(riotApi), CommandType.Message);
+        commandRegistry.registerCommand("colorpick", new ColorPickerCommand(), CommandType.Slash);
+
+        // Playlist commands using nested command registry
+        // (keeps original command format)
+        commandRegistry.registerCommand("playlist",
+                new PlaylistCommandRegistry(), CommandType.Message,
+                new VoiceChannelRequiredMiddleware());
 
         // Help command
         commandRegistry.registerCommand("help", new CommandHandler() {
             @Override
-            public void handle(net.dv8tion.jda.api.events.message.MessageReceivedEvent event, String arguments) {
-                event.getChannel().sendMessage("Available commands: " + 
-                    String.join(", ", commandRegistry.getCommandNames())).queue();
+            public void handle(CommandEvent event, String arguments) {
+                StringBuilder sb = new StringBuilder();
+                sb.append("Available Message commands: \n");
+                for (String command : commandRegistry.getCommandNamesByCommandType(CommandType.Message)) {
+                    sb.append(command).append(": ")
+                            .append(commandRegistry.getCommandChain(command).getHandler().getDescription())
+                            .append("\n");
+                }
+                sb.append("Available Slash commands: \n");
+                for (String command : commandRegistry.getCommandNamesByCommandType(CommandType.Slash)) {
+                    sb.append(command).append(": ")
+                            .append(commandRegistry.getCommandChain(command).getHandler().getDescription())
+                            .append("\n");
+                }
+                event.channel().sendMessage(sb.toString()).queue();
             }
-        });
+
+            @Override
+            public String getDescription() {
+                return "Gibt alle Commands sammt Beschreibung an";
+            }
+        }, CommandType.All);
 
         logger.info("Registered {} commands", commandRegistry.getCommandNames().size());
     }
 
     private void setupEventHandlers(EventBus eventBus, CommandRegistry commandRegistry) {
-        eventBus.register(CommandEvent.class, event -> 
-            commandRegistry.executeCommand(event));
+        eventBus.register(CommandEvent.class, event -> commandRegistry.executeCommand(event));
 
         logger.info("Event handlers configured");
     }
@@ -145,23 +167,33 @@ public class BotApplication {
         }, 0, 4, TimeUnit.HOURS);
     }
 
-    private void startDiscordBot(EventBus eventBus) throws Exception {
+    private void startDiscordBot(EventBus eventBus, CommandRegistry commandRegistry) throws Exception {
         String token = ConfigService.loadConfig("discordToken");
         String commandPrefix = ConfigService.loadConfig("commandPrefix");
 
         JDA jda = JDABuilder.createDefault(token, EnumSet.of(
-                GatewayIntent.GUILD_MESSAGES, 
+                GatewayIntent.GUILD_MESSAGES,
                 GatewayIntent.MESSAGE_CONTENT,
-                GatewayIntent.GUILD_VOICE_STATES, 
+                GatewayIntent.GUILD_VOICE_STATES,
                 GatewayIntent.GUILD_MEMBERS,
-                GatewayIntent.GUILD_PRESENCES, 
+                GatewayIntent.GUILD_PRESENCES,
                 GatewayIntent.GUILD_MESSAGE_REACTIONS,
-                GatewayIntent.GUILD_MESSAGE_TYPING))
-            .addEventListeners(new DiscordEventListener(eventBus, commandPrefix))
-            .build();
+                GatewayIntent.GUILD_MESSAGE_TYPING,
+                GatewayIntent.GUILD_MODERATION))
+                .addEventListeners(new DiscordEventListener(eventBus, commandPrefix))
+                .build();
 
         // Wait for JDA to be ready
         jda.awaitReady();
+
+        // Slash Commands
+        CommandListUpdateAction commands = jda.updateCommands();
+        for (String command : commandRegistry.getCommandNamesByCommandType(CommandType.Slash)) {
+            commands.addCommands(
+                    Commands.slash(command, commandRegistry.getCommandChain(command).getHandler().getDescription()));
+        }
+
+        commands.queue();
 
         // Start TTS announcer
         TTSAnnouncer ttsAnnouncer = new TTSAnnouncer(jda);
@@ -172,24 +204,24 @@ public class BotApplication {
 
     public void shutdown() {
         logger.info("Shutting down Discord Bot...");
-        
+
         if (eventBus != null) {
             eventBus.shutdown();
         }
-        
+
         if (scheduler != null) {
             scheduler.shutdown();
         }
-        
+
         logger.info("Discord Bot shutdown completed");
     }
 
     public static void main(String[] args) {
         BotApplication app = new BotApplication();
-        
+
         // Add shutdown hook
         Runtime.getRuntime().addShutdownHook(new Thread(app::shutdown));
-        
+
         app.start();
     }
 }

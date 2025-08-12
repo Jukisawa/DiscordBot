@@ -1,7 +1,11 @@
 package com.jukisawa.discordBot.command;
 
-import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
+import com.jukisawa.discordBot.event.CommandEvent;
 
 public interface CommandHandler {
-    void handle(MessageReceivedEvent event, String arguments);
+    void handle(CommandEvent event, String arguments);
+
+    default String getDescription() {
+        return "";
+    };
 }

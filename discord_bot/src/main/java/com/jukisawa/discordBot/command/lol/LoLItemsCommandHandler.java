@@ -16,12 +16,12 @@ import com.jukisawa.discordBot.dto.lol.Item;
 import com.jukisawa.discordBot.dto.lol.LoLCommandInput;
 import com.jukisawa.discordBot.dto.lol.MatchData;
 import com.jukisawa.discordBot.dto.lol.MatchParticipant;
+import com.jukisawa.discordBot.event.CommandEvent;
 import com.jukisawa.discordBot.exceptions.InputParseException;
 import com.jukisawa.discordBot.repository.LoLAccountRepository;
 import com.jukisawa.discordBot.service.lol.RiotApiService;
 import com.jukisawa.discordBot.util.CommandUtils;
 
-import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import net.dv8tion.jda.api.utils.FileUpload;
 
 public class LoLItemsCommandHandler implements CommandHandler {
@@ -36,11 +36,10 @@ public class LoLItemsCommandHandler implements CommandHandler {
   }
 
   @Override
-  public void handle(MessageReceivedEvent event, String arguments) {
+  public void handle(CommandEvent event, String arguments) {
     try {
-
       if (arguments.contains("?") || arguments.contains("help")) {
-        event.getChannel().sendMessage(
+        event.channel().sendMessage(
             "Der Commands geht folgendermaßen #lolItems 'Name#Tag' 'Anzahl an Spiele die bewertet werden sollen' 'Der Warteschlangen typ Bsp. Solo'")
             .queue();
         return;
@@ -84,13 +83,18 @@ public class LoLItemsCommandHandler implements CommandHandler {
       }
 
       FileUpload fileUpload = FileUpload.fromData(tempFile, "item_usage.csv");
-      event.getChannel().sendFiles(Collections.singleton(fileUpload)).queue(
+      event.channel().sendFiles(Collections.singleton(fileUpload)).queue(
           (msg) -> tempFile.delete());
     } catch (InputParseException e) {
-      event.getChannel().sendMessage(e.getMessage()).queue();
+      event.channel().sendMessage(e.getMessage()).queue();
     } catch (Exception e) {
       logger.error("Error fetching items: ", e);
     }
+  }
+
+  @Override
+  public String getDescription() {
+    return "Liste von meist gekauften Items in den letzten Games";
   }
 
 }

@@ -12,10 +12,9 @@ import org.slf4j.LoggerFactory;
 
 import com.jukisawa.discordBot.command.CommandHandler;
 import com.jukisawa.discordBot.dto.lol.ChampionMastery;
+import com.jukisawa.discordBot.event.CommandEvent;
 import com.jukisawa.discordBot.service.lol.RiotApiService;
 import com.jukisawa.discordBot.util.CommandUtils;
-
-import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
 public class LoLRankingCommandHandler implements CommandHandler {
 
@@ -27,10 +26,10 @@ public class LoLRankingCommandHandler implements CommandHandler {
     }
 
     @Override
-    public void handle(MessageReceivedEvent event, String arguments) {
+    public void handle(CommandEvent event, String arguments) {
         try {
             if (arguments.contains("?") || arguments.contains("help")) {
-                event.getChannel()
+                event.channel()
                         .sendMessage(
                                 "Der Commands geht folgendermaßen: #lolRanking 'Name#Tag' 'Name#Tag' 'Name#Tag'....")
                         .queue();
@@ -66,12 +65,17 @@ public class LoLRankingCommandHandler implements CommandHandler {
             scoreMap.entrySet().stream()
                     .sorted(Map.Entry.<String, Integer>comparingByValue().reversed())
                     .forEach(
-                            entry -> message.append(entry.getKey()).append(": ").append(CommandUtils.convertNumber(entry.getValue())).append("\n"));
+                            entry -> message.append(entry.getKey()).append(": ")
+                                    .append(CommandUtils.convertNumber(entry.getValue())).append("\n"));
 
-            event.getChannel().sendMessage(message.toString()).queue();
+            event.channel().sendMessage(message.toString()).queue();
         } catch (Exception e) {
-            event.getChannel().sendMessage("Ein Fehler ist aufgetreten: " + e.getMessage()).queue();
+            event.channel().sendMessage("Ein Fehler ist aufgetreten: " + e.getMessage()).queue();
         }
     }
 
+    @Override
+    public String getDescription() {
+        return "Ranking von 2 oder mehr Spieler abhängig von Acc lvl, Masterys und Champion lvl";
+    }
 }

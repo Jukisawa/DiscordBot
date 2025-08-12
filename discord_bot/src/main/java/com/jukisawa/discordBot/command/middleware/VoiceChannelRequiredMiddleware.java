@@ -12,10 +12,10 @@ public class VoiceChannelRequiredMiddleware implements CommandMiddleware {
 
     @Override
     public void execute(CommandEvent event, Runnable next) {
-        Member member = event.discordEvent().getMember();
+        Member member = event.member();
         
         if (member == null) {
-            event.discordEvent().getChannel()
+            event.channel()
                 .sendMessage("❌ This command can only be used in a server.").queue();
             return;
         }
@@ -24,7 +24,7 @@ public class VoiceChannelRequiredMiddleware implements CommandMiddleware {
             member.getVoiceState().getChannel() : null;
 
         if (voiceChannel == null) {
-            event.discordEvent().getChannel()
+            event.channel()
                 .sendMessage("🔊 You need to be in a voice channel to use music commands.").queue();
             return;
         }

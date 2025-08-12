@@ -4,15 +4,14 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.jukisawa.discordBot.command.CommandHandler;
-
-import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
+import com.jukisawa.discordBot.event.CommandEvent;
 
 public class PlaylistHelpCommandHandler implements CommandHandler {
     
     private static final Logger logger = LoggerFactory.getLogger(PlaylistHelpCommandHandler.class);
 
     @Override
-    public void handle(MessageReceivedEvent event, String arguments) {
+    public void handle(CommandEvent event, String arguments) {
         logger.info("Handling playlist help command");
         
         String helpText = "**Playlist Commands:**\n" +
@@ -30,6 +29,8 @@ public class PlaylistHelpCommandHandler implements CommandHandler {
                 "`!playlist volume <0-100>` - Set the volume\n" +
                 "`!playlist help` - Show this help message";
         
-        event.getChannel().sendMessage(helpText).queue();
+        event.channel().sendMessage(helpText).queue();
     }
+
+    
 }

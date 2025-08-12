@@ -7,8 +7,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.jukisawa.discordBot.command.CommandHandler;
-
-import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
+import com.jukisawa.discordBot.event.CommandEvent;
 
 /**
  * Nested command registry for playlist commands
@@ -18,10 +17,10 @@ import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
  * to individual handlers for each sub-command.
  */
 public class PlaylistCommandRegistry implements CommandHandler {
-    
+
     private static final Logger logger = LoggerFactory.getLogger(PlaylistCommandRegistry.class);
     private final Map<String, CommandHandler> subCommands = new HashMap<>();
-    
+
     public PlaylistCommandRegistry() {
         // Register all sub-command handlers using the simple pattern
         subCommands.put("add", new PlaylistAddCommandHandler());
@@ -37,25 +36,25 @@ public class PlaylistCommandRegistry implements CommandHandler {
         subCommands.put("repeat", new PlaylistRepeatCommandHandler());
         subCommands.put("volume", new PlaylistVolumeCommandHandler());
         subCommands.put("help", new PlaylistHelpCommandHandler());
-        
+
         logger.info("Registered {} playlist sub-commands", subCommands.size());
     }
 
     @Override
-    public void handle(MessageReceivedEvent event, String arguments) {
+    public void handle(CommandEvent event, String arguments) {
         logger.info("Handling playlist command: " + arguments);
-        
+
         if (arguments.trim().isEmpty()) {
             // Default to help if no sub-command provided
             subCommands.get("help").handle(event, "");
             return;
         }
-        
+
         // Parse sub-command and arguments
         String[] parts = arguments.trim().split("\\s+", 2);
         String subCommand = parts[0].toLowerCase();
         String subArguments = parts.length > 1 ? parts[1] : "";
-        
+
         // Find and execute the appropriate handler
         CommandHandler handler = subCommands.get(subCommand);
         if (handler != null) {
@@ -63,8 +62,13 @@ public class PlaylistCommandRegistry implements CommandHandler {
             handler.handle(event, subArguments);
         } else {
             // Unknown sub-command, show help
-            event.getChannel().sendMessage("Unknown playlist command: `" + subCommand + 
-                "`. Use `!playlist help` to see available commands.").queue();
+            event.channel().sendMessage("Unknown playlist command: `" + subCommand +
+                    "`. Use `!playlist help` to see available commands.").queue();
         }
+    }
+
+    @Override
+    public String getDescription() {
+        return "Generelle verarbeitung von Playlist Commands";
     }
 }

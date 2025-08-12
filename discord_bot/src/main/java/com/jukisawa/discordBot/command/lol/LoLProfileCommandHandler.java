@@ -5,9 +5,8 @@ import org.slf4j.LoggerFactory;
 
 import com.jukisawa.discordBot.command.CommandHandler;
 import com.jukisawa.discordBot.entity.LoLAccount;
+import com.jukisawa.discordBot.event.CommandEvent;
 import com.jukisawa.discordBot.repository.LoLAccountRepository;
-
-import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
 public class LoLProfileCommandHandler implements CommandHandler {
 
@@ -15,10 +14,10 @@ public class LoLProfileCommandHandler implements CommandHandler {
     private static final Logger logger = LoggerFactory.getLogger(LoLProfileCommandHandler.class);
 
     @Override
-    public void handle(MessageReceivedEvent event, String arguments) {
+    public void handle(CommandEvent event, String arguments) {
         try {
             if (arguments.contains("?") || arguments.contains("help")) {
-                event.getChannel().sendMessage("Der Commands geht folgendermaßen: #lolMastery 'Name#Tag'.").queue();
+                event.channel().sendMessage("Der Commands geht folgendermaßen: #lolprofile 'Name#Tag'.").queue();
                 return;
             }
 
@@ -28,23 +27,23 @@ public class LoLProfileCommandHandler implements CommandHandler {
             if (lolName.length != 2)
                 throw new IllegalArgumentException("Format muss Name#Tag sein!");
 
-            Long discordUserId = event.getAuthor().getIdLong();
+            Long discordUserId = event.userId();
 
             switch (commandAddon) {
                 case "add":
                     addLoLAccountToDiscordUser(discordUserId, lolName[0], lolName[1]);
-                    event.getChannel().sendMessage("LoL account linked!").queue();
+                    event.channel().sendMessage("LoL account linked!").queue();
                     break;
                 case "remove":
                     removeLoLAccountFromDiscordUser(discordUserId, lolName[0], lolName[1]);
-                    event.getChannel().sendMessage("LoL account unlinked!").queue();
+                    event.channel().sendMessage("LoL account unlinked!").queue();
                     break;
                 case "list":
                     String accountList = getLoLAccountList(discordUserId);
                     if (accountList.isEmpty()) {
-                        event.getChannel().sendMessage("No LoL accounts linked.").queue();
+                        event.channel().sendMessage("No LoL accounts linked.").queue();
                     } else {
-                        event.getChannel().sendMessage("Linked LoL accounts:\n" + accountList).queue();
+                        event.channel().sendMessage("Linked LoL accounts:\n" + accountList).queue();
                     }
                     break;
                 default:
@@ -53,7 +52,7 @@ public class LoLProfileCommandHandler implements CommandHandler {
 
         } catch (IllegalArgumentException e) {
             logger.error("Invalid format for nameWithTag: " + e.getMessage());
-            event.getChannel().sendMessage("Bitte gib den Namen folgendermaßen an: 'Name#Tag'.").queue();
+            event.channel().sendMessage("Bitte gib den Namen folgendermaßen an: 'Name#Tag'.").queue();
         }
 
     }
@@ -78,4 +77,8 @@ public class LoLProfileCommandHandler implements CommandHandler {
         return sb.toString();
     }
 
+    @Override
+    public String getDescription() {
+        return "Funktion zum hinzufügen und entfernen von LoL Accs zum eigenen User";
+    }
 }

@@ -5,8 +5,7 @@ import org.slf4j.LoggerFactory;
 
 import com.jukisawa.discordBot.audio.PlaylistManager;
 import com.jukisawa.discordBot.command.CommandHandler;
-
-import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
+import com.jukisawa.discordBot.event.CommandEvent;
 
 public class PlaylistRepeatCommandHandler implements CommandHandler {
     
@@ -14,11 +13,12 @@ public class PlaylistRepeatCommandHandler implements CommandHandler {
     private static final Logger logger = LoggerFactory.getLogger(PlaylistRepeatCommandHandler.class);
 
     @Override
-    public void handle(MessageReceivedEvent event, String arguments) {
+    public void handle(CommandEvent event, String arguments) {
         logger.info("Handling playlist repeat command");
-        playlistManager.switchRepeatQueue(event.getGuild().getIdLong());
-        event.getChannel().sendMessage("Repeat mode ist nun "
-                + (playlistManager.isRepeatQueue(event.getGuild().getIdLong()) ? "Aktiv" : "Deaktiv"))
+        playlistManager.switchRepeatQueue(event.guild().getIdLong());
+        event.channel().sendMessage("Repeat mode ist nun "
+                + (playlistManager.isRepeatQueue(event.guild().getIdLong()) ? "Aktiv" : "Deaktiv"))
                 .queue();
     }
+    
 }

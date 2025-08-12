@@ -1,7 +1,6 @@
 package com.jukisawa.discordBot.cache;
 
 import java.io.IOException;
-import java.util.Collections;
 import java.util.List;
 
 import org.json.JSONException;

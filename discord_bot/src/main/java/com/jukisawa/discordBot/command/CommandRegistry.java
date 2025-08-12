@@ -5,7 +5,9 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.CompletableFuture;
+import java.util.stream.Collectors;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -18,7 +20,7 @@ import com.jukisawa.discordBot.event.CommandEvent;
  */
 public class CommandRegistry {
     private static final Logger logger = LoggerFactory.getLogger(CommandRegistry.class);
-    
+
     private final Map<String, CommandChain> commands = new HashMap<>();
     private final List<CommandMiddleware> globalMiddleware = new ArrayList<>();
 
@@ -33,7 +35,8 @@ public class CommandRegistry {
     /**
      * Register a command with optional command-specific middleware
      */
-    public void registerCommand(String name, CommandHandler handler, CommandMiddleware... middleware) {
+    public void registerCommand(String name, CommandHandler handler, CommandType type,
+            CommandMiddleware... middleware) {
         CommandChain chain = new CommandChain();
 
         // Add global middleware first
@@ -45,9 +48,12 @@ public class CommandRegistry {
         // Add actual handler
         chain.setHandler(handler);
 
+        // set Type
+        chain.setType(type);
+
         commands.put(name.toLowerCase(), chain);
-        logger.info("Registered command: {} with {} middleware", name, 
-            globalMiddleware.size() + middleware.length);
+        logger.info("Registered command: {} with {} middleware", name,
+                globalMiddleware.size() + middleware.length);
     }
 
     /**
@@ -65,16 +71,34 @@ public class CommandRegistry {
                 chain.execute(event);
             } catch (Exception e) {
                 logger.error("Error executing command {}: ", event.command(), e);
-                event.discordEvent().getChannel()
-                    .sendMessage("❌ An error occurred while processing your command.").queue();
+                event.channel()
+                        .sendMessage("❌ An error occurred while processing your command.").queue();
             }
         });
     }
 
     /**
+     * Return Commandchain of Command
+     */
+    public CommandChain getCommandChain(String command) {
+        return commands.get(command);
+    }
+
+    /**
      * Get all registered command names
      */
-    public java.util.Set<String> getCommandNames() {
+    public Set<String> getCommandNames() {
         return commands.keySet();
+    }
+
+    /**
+     * Get all registered command names by CommandType
+     */
+    public Set<String> getCommandNamesByCommandType(CommandType type) {
+        return commands.entrySet().stream()
+                .filter(e -> e.getValue().getType() == type
+                        || e.getValue().getType() == CommandType.All)
+                .map(Map.Entry::getKey)
+                .collect(Collectors.toSet());
     }
 }

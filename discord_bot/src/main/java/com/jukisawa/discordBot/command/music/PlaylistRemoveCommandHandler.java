@@ -6,8 +6,7 @@ import org.slf4j.LoggerFactory;
 import com.jukisawa.discordBot.audio.PlaylistManager;
 import com.jukisawa.discordBot.command.CommandHandler;
 import com.jukisawa.discordBot.dto.music.Song;
-
-import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
+import com.jukisawa.discordBot.event.CommandEvent;
 
 public class PlaylistRemoveCommandHandler implements CommandHandler {
     
@@ -15,19 +14,20 @@ public class PlaylistRemoveCommandHandler implements CommandHandler {
     private static final Logger logger = LoggerFactory.getLogger(PlaylistRemoveCommandHandler.class);
 
     @Override
-    public void handle(MessageReceivedEvent event, String arguments) {
+    public void handle(CommandEvent event, String arguments) {
         logger.info("Handling playlist remove command: " + arguments);
         
         if (arguments.isEmpty()) {
-            event.getChannel().sendMessage("Bitte gib einen Songnamen an.").queue();
+            event.channel().sendMessage("Bitte gib einen Songnamen an.").queue();
             return;
         }
         
-        Song removedSong = playlistManager.removeSong(event.getGuild().getIdLong(), arguments);
+        Song removedSong = playlistManager.removeSong(event.guild().getIdLong(), arguments);
         if (removedSong != null) {
-            event.getChannel().sendMessage("Song removed from playlist: " + removedSong.title()).queue();
+            event.channel().sendMessage("Song removed from playlist: " + removedSong.title()).queue();
         } else {
-            event.getChannel().sendMessage("Song not found in playlist: " + arguments).queue();
+            event.channel().sendMessage("Song not found in playlist: " + arguments).queue();
         }
     }
+    
 }

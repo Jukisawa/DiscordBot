@@ -16,12 +16,12 @@ import com.jukisawa.discordBot.cache.StaticDataCache;
 import com.jukisawa.discordBot.command.CommandHandler;
 import com.jukisawa.discordBot.dto.lol.Champion;
 import com.jukisawa.discordBot.dto.lol.ChampionMastery;
+import com.jukisawa.discordBot.event.CommandEvent;
 import com.jukisawa.discordBot.repository.LoLAccountRepository;
 import com.jukisawa.discordBot.service.lol.RiotApiService;
 import com.jukisawa.discordBot.util.CommandUtils;
 import com.jukisawa.discordBot.util.TableImageRenderer;
 
-import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import net.dv8tion.jda.api.utils.FileUpload;
 import net.dv8tion.jda.internal.utils.tuple.Pair;
 
@@ -37,10 +37,10 @@ public class LoLMasteryCommandHandler implements CommandHandler {
     }
 
     @Override
-    public void handle(MessageReceivedEvent event, String arguments) {
+    public void handle(CommandEvent event, String arguments) {
         try {
             if (arguments.contains("?") || arguments.contains("help")) {
-                event.getChannel().sendMessage("Der Commands geht folgendermaßen: #lolMastery 'Name#Tag'.").queue();
+                event.channel().sendMessage("Der Commands geht folgendermaßen: #lolMastery 'Name#Tag'.").queue();
                 return;
             }
             logger.info("Processing LoL Mastery command for: " + arguments);
@@ -55,11 +55,11 @@ public class LoLMasteryCommandHandler implements CommandHandler {
             ImageIO.write(tableImg, "png", tempFile);
 
             FileUpload fileUpload = FileUpload.fromData(tempFile, "lolprofile.png");
-            event.getChannel().sendFiles(Collections.singleton(fileUpload)).queue(msg -> tempFile.delete());
+            event.channel().sendFiles(Collections.singleton(fileUpload)).queue(msg -> tempFile.delete());
 
         } catch (IllegalArgumentException e) {
             logger.error("Invalid format for nameWithTag: ", e);
-            event.getChannel().sendMessage("Bitte gib den Namen folgendermaßen an: 'Name#Tag'.").queue();
+            event.channel().sendMessage("Bitte gib den Namen folgendermaßen an: 'Name#Tag'.").queue();
         } catch (Exception e) {
             logger.error("Error fetching PUUID: ", e);
         }
@@ -101,5 +101,10 @@ public class LoLMasteryCommandHandler implements CommandHandler {
         }
 
         return Pair.of(headers, rows);
+    }
+
+    @Override
+    public String getDescription() {
+        return "Liste mit allen Champion Mastery Daten";
     }
 }

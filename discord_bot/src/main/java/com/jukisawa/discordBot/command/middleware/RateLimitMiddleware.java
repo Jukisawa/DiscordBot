@@ -30,12 +30,12 @@ public class RateLimitMiddleware implements CommandMiddleware {
 
     @Override
     public void execute(CommandEvent event, Runnable next) {
-        long userId = event.getUserId();
+        long userId = event.userId();
         long currentTime = System.currentTimeMillis();
         long lastTime = lastCommandTime.getOrDefault(userId, 0L);
 
         if (currentTime - lastTime < rateLimitMs) {
-            event.discordEvent().getChannel()
+            event.channel()
                 .sendMessage("⏰ Rate limit exceeded. Please slow down.").queue();
             return;
         }

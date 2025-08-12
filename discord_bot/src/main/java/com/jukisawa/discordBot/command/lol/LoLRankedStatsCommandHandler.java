@@ -7,11 +7,10 @@ import org.slf4j.LoggerFactory;
 
 import com.jukisawa.discordBot.command.CommandHandler;
 import com.jukisawa.discordBot.dto.lol.RankedStats;
+import com.jukisawa.discordBot.event.CommandEvent;
 import com.jukisawa.discordBot.repository.LoLAccountRepository;
 import com.jukisawa.discordBot.service.lol.RiotApiService;
 import com.jukisawa.discordBot.util.CommandUtils;
-
-import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
 public class LoLRankedStatsCommandHandler implements CommandHandler {
 
@@ -25,10 +24,10 @@ public class LoLRankedStatsCommandHandler implements CommandHandler {
     }
 
     @Override
-    public void handle(MessageReceivedEvent event, String arguments) {
+    public void handle(CommandEvent event, String arguments) {
         try {
             if (arguments.contains("?") || arguments.contains("help")) {
-                event.getChannel().sendMessage("Der Commands geht folgendermaßen: #lolRankedStats 'Name#Tag'.").queue();
+                event.channel().sendMessage("Der Commands geht folgendermaßen: #lolRankedStats 'Name#Tag'.").queue();
                 return;
             }
 
@@ -51,14 +50,18 @@ public class LoLRankedStatsCommandHandler implements CommandHandler {
                 message.append("\nHot Streak: ").append(stats.hotStreak());
                 message.append("\n\n");
             }
-            event.getChannel().sendMessage(message).queue();
+            event.channel().sendMessage(message).queue();
 
         } catch (IllegalArgumentException e) {
             logger.error("Invalid format for nameWithTag: ", e);
-            event.getChannel().sendMessage("Bitte gib den Name folgendermaßen an: 'Name#Tag'.").queue();
+            event.channel().sendMessage("Bitte gib den Name folgendermaßen an: 'Name#Tag'.").queue();
         } catch (Exception e) {
             logger.error("Error fetching PUUID: ", e);
         }
     }
 
+    @Override
+    public String getDescription() {
+        return "Anzeige über die aktuellen Ranked Stats";
+    }
 }

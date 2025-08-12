@@ -5,18 +5,17 @@ import org.slf4j.LoggerFactory;
 
 import com.jukisawa.discordBot.audio.PlaylistManager;
 import com.jukisawa.discordBot.command.CommandHandler;
-
-import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
+import com.jukisawa.discordBot.event.CommandEvent;
 
 public class PlaylistClearCommandHandler implements CommandHandler {
-    
+
     private final PlaylistManager playlistManager = PlaylistManager.getInstance();
     private static final Logger logger = LoggerFactory.getLogger(PlaylistClearCommandHandler.class);
 
     @Override
-    public void handle(MessageReceivedEvent event, String arguments) {
+    public void handle(CommandEvent event, String arguments) {
         logger.info("Handling playlist clear command");
-        playlistManager.clearPlaylist(event.getGuild().getIdLong());
-        event.getChannel().sendMessage("Playlist cleared.").queue();
+        playlistManager.clearPlaylist(event.guildId());
+        event.channel().sendMessage("Playlist cleared.").queue();
     }
 }

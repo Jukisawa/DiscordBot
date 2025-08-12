@@ -15,15 +15,15 @@ public class LoggingMiddleware implements CommandMiddleware {
     public void execute(CommandEvent event, Runnable next) {
         logger.info("Executing command: {} by user: {} in guild: {}", 
             event.command(), 
-            event.getUserName(), 
-            event.getGuildId());
+            event.userName(), 
+            event.guildId());
 
         long start = System.currentTimeMillis();
         try {
             next.run();
         } catch (Exception e) {
             logger.error("Command {} failed for user {}: ", 
-                event.command(), event.getUserName(), e);
+                event.command(), event.userName(), e);
             throw e;
         } finally {
             long duration = System.currentTimeMillis() - start;
